@@ -143,7 +143,7 @@ with right:
                         "current_project"
                     ] = project
 
-                    st.session_state(
+                    st.session_state[
                         "page"
                     ] = "workspace"
                     
