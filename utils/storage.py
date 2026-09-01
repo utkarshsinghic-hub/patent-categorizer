@@ -26,7 +26,20 @@ def get_projects():
     if not os.path.exists(BASE_PATH):
         os.makedirs(BASE_PATH)
 
-    return os.listdir(BASE_PATH)
+    projects = []
+
+    for item in os.listdir(BASE_PATH):
+
+        path = os.path.join(
+            BASE_PATH,
+            item
+        )
+
+        # Only show folders, ignore .gitkeep and files
+        if os.path.isdir(path):
+            projects.append(item)
+
+    return projects
 
 
 
