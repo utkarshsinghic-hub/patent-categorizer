@@ -74,17 +74,19 @@ def get_project_file(name):
         return None
 
 
-    files = os.listdir(project_path)
+    for file in os.listdir(project_path):
 
-
-    for file in files:
-
-        if file.endswith(".xlsx"):
+        if file.lower().endswith(
+            (".xlsx", ".xls")
+        ):
 
             return os.path.join(
                 project_path,
                 file
             )
+
+
+    return None
 
 
     return None
