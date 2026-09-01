@@ -1,3 +1,5 @@
+from utils.storage import get_project_file
+import pandas as pd
 import streamlit as st
 import os
 import shutil
@@ -19,6 +21,8 @@ st.set_page_config(
 
 
 st.title("Patent Categorization Tool")
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
 
 # -----------------------------
@@ -139,9 +143,11 @@ with right:
                         "current_project"
                     ] = project
 
-                    st.success(
-                        f"Opened {project}"
-                    )
+                    st.session_state(
+                        "page"
+                    ] = "workspace"
+                    
+                    st.return()
 
 
             with col2:
@@ -201,3 +207,59 @@ with right:
                 ]
 
                 st.rerun()
+
+# ==========================
+# PROJECT WORKSPACE
+# ==========================
+
+if st.session_state.get("page") == "workspace":
+
+    project = st.session_state[
+        "current_project"
+    ]
+
+
+    st.title(
+        project
+    )
+
+
+    st.subheader(
+        "Patent List"
+    )
+
+
+    file = get_project_file(
+        project
+    )
+
+
+    if file:
+
+        df = pd.read_excel(
+            file
+        )
+
+
+        st.dataframe(
+            df,
+            use_container_width=True
+        )
+
+
+    else:
+
+        st.warning(
+            "No patent Excel file found"
+        )
+
+
+    if st.button(
+        "← Back to Home"
+    ):
+
+        st.session_state[
+            "page"
+        ] = "home"
+
+        st.rerun()
