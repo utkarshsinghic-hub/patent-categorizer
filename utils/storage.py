@@ -63,3 +63,28 @@ def rename_project(old,new):
         os.path.join(BASE_PATH,old),
         os.path.join(BASE_PATH,new)
     )
+def get_project_file(name):
+
+    project_path = os.path.join(
+        BASE_PATH,
+        name
+    )
+
+    if not os.path.exists(project_path):
+        return None
+
+
+    files = os.listdir(project_path)
+
+
+    for file in files:
+
+        if file.endswith(".xlsx"):
+
+            return os.path.join(
+                project_path,
+                file
+            )
+
+
+    return None
