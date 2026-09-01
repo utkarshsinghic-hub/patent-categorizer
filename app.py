@@ -1,5 +1,15 @@
 import streamlit as st
-from google import genai
+import os
+import shutil
+
+from utils.storage import (
+    create_project,
+    get_projects,
+    delete_project,
+    rename_project
+)
+
+from utils.template import create_template
 
 
 st.set_page_config(
@@ -8,64 +18,186 @@ st.set_page_config(
 )
 
 
-client = genai.Client(
-    api_key=st.secrets["GEMINI_API_KEY"]
-)
-
-
 st.title("Patent Categorization Tool")
 
-st.subheader("Patent Translation")
+
+# -----------------------------
+# HOME PAGE
+# -----------------------------
+
+left, right = st.columns(2)
 
 
-claims = st.text_area(
-    "Paste Patent Claims",
-    height=300
-)
+# =============================
+# CREATE NEW PROJECT
+# =============================
+
+with left:
+
+    st.subheader("Create New Project")
+
+    project_name = st.text_input(
+        "Project Name"
+    )
 
 
-if st.button("Translate Claims"):
-
-    if claims.strip():
-
-        with st.spinner("Translating patent claims..."):
-
-            prompt = f"""
-You are an expert patent translator.
-
-Translate the following patent claims into professional English.
-
-Rules:
-- Preserve claim numbering.
-- Preserve patent legal terminology.
-- Maintain "comprising", "wherein", "configured to" style.
-- Do not summarize.
-- Do not add explanations.
-- Keep technical meaning unchanged.
-
-Patent Claims:
-
-{claims}
-"""
+    uploaded_file = st.file_uploader(
+        "Upload Patent Excel File",
+        type=["xlsx"]
+    )
 
 
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
+    st.download_button(
+        label="Download Sample Template",
+        data=create_template(),
+        file_name="patent_template.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+
+    if st.button("Create Project"):
+
+        if project_name:
+
+            path = create_project(
+                project_name
             )
 
 
-        st.subheader(
-            "English Translation"
+            if uploaded_file:
+
+                with open(
+                    os.path.join(
+                        path,
+                        uploaded_file.name
+                    ),
+                    "wb"
+                ) as f:
+
+                    f.write(
+                        uploaded_file.getbuffer()
+                    )
+
+
+            st.success(
+                f"Project '{project_name}' created"
+            )
+
+            st.rerun()
+
+
+        else:
+
+            st.warning(
+                "Please enter project name"
+            )
+
+
+
+# =============================
+# EXISTING PROJECTS
+# =============================
+
+with right:
+
+    st.subheader(
+        "Existing Projects"
+    )
+
+
+    projects = get_projects()
+
+
+    if not projects:
+
+        st.info(
+            "No projects created yet"
         )
 
-        st.write(
-            response.text
+
+    for project in projects:
+
+
+        with st.container(border=True):
+
+            st.write(
+                project
+            )
+
+
+            col1, col2, col3 = st.columns(3)
+
+
+            with col1:
+
+                if st.button(
+                    "Open",
+                    key=f"open_{project}"
+                ):
+
+                    st.session_state[
+                        "current_project"
+                    ] = project
+
+                    st.success(
+                        f"Opened {project}"
+                    )
+
+
+            with col2:
+
+                if st.button(
+                    "Rename",
+                    key=f"rename_{project}"
+                ):
+
+                    st.session_state[
+                        "rename_project"
+                    ] = project
+
+
+
+            with col3:
+
+                if st.button(
+                    "Delete",
+                    key=f"delete_{project}"
+                ):
+
+                    delete_project(
+                        project
+                    )
+
+                    st.rerun()
+
+
+
+    if "rename_project" in st.session_state:
+
+
+        old = st.session_state[
+            "rename_project"
+        ]
+
+
+        new = st.text_input(
+            "New Project Name"
         )
 
 
-    else:
+        if st.button(
+            "Confirm Rename"
+        ):
 
-        st.warning(
-            "Please paste patent claims."
-        )
+            if new:
+
+                rename_project(
+                    old,
+                    new
+                )
+
+                del st.session_state[
+                    "rename_project"
+                ]
+
+                st.rerun()
