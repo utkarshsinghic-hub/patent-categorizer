@@ -8,7 +8,6 @@ st.set_page_config(
 )
 
 
-# Gemini connection
 client = genai.Client(
     api_key=st.secrets["GEMINI_API_KEY"]
 )
@@ -16,38 +15,37 @@ client = genai.Client(
 
 st.title("Patent Categorization Tool")
 
-st.write(
-    "AI-powered patent translation and analysis"
-)
+st.subheader("Patent Translation")
 
 
-claim_text = st.text_area(
-    "Paste patent claim",
+claims = st.text_area(
+    "Paste Patent Claims",
     height=300
 )
 
 
-if st.button("Translate Claim"):
+if st.button("Translate Claims"):
 
-    if claim_text.strip():
+    if claims.strip():
 
-        with st.spinner("Translating using Gemini..."):
+        with st.spinner("Translating patent claims..."):
 
             prompt = f"""
 You are an expert patent translator.
 
-Translate the following patent claim into professional English.
+Translate the following patent claims into professional English.
 
 Rules:
 - Preserve claim numbering.
-- Preserve legal patent language.
-- Keep technical meaning unchanged.
+- Preserve patent legal terminology.
+- Maintain "comprising", "wherein", "configured to" style.
 - Do not summarize.
 - Do not add explanations.
+- Keep technical meaning unchanged.
 
-Patent claim:
+Patent Claims:
 
-{claim_text}
+{claims}
 """
 
 
@@ -57,14 +55,17 @@ Patent claim:
             )
 
 
-        st.subheader("English Translation")
+        st.subheader(
+            "English Translation"
+        )
 
         st.write(
             response.text
         )
 
+
     else:
 
         st.warning(
-            "Please paste a patent claim first."
+            "Please paste patent claims."
         )
