@@ -70,18 +70,19 @@ with left:
 
             if uploaded_file:
 
-                with open(
-                    os.path.join(
-                        path,
-                        uploaded_file.name
+                file_path = os.path.join(
+                    path,
+                    uploaded_file.name
                     ),
+
+                with open(
+                    file_path,
                     "wb"
                 ) as f:
 
                     f.write(
-                        uploaded_file.getbuffer()
+                        uploaded_file.getvalue()
                     )
-
 
             st.success(
                 f"Project '{project_name}' created"
