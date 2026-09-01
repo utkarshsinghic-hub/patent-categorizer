@@ -147,7 +147,7 @@ with right:
                         "page"
                     ] = "workspace"
                     
-                    st.return()
+                    st.rerun()
 
 
             with col2:
