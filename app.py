@@ -247,6 +247,21 @@ if st.session_state.get("page") == "workspace":
             use_container_width=True
         )
 
+        selected_index = st.selectbox(
+            "Select Patent",
+            df.index
+        )
+
+        if st.button("Open Patent"):
+            
+            st.session_state["selected_patent"] = (
+                 df.loc[selected_index]
+            )
+            
+            st.session_state["page"] = "patent"
+            
+            st.rerun()
+
 
     else:
 
@@ -262,5 +277,107 @@ if st.session_state.get("page") == "workspace":
         st.session_state[
             "page"
         ] = "home"
+
+        st.rerun()
+
+# ==========================
+# PATENT DETAIL PAGE
+# ==========================
+
+if st.session_state.get("page") == "patent":
+
+    patent = st.session_state[
+        "selected_patent"
+    ]
+
+
+    st.title(
+        patent["Title"]
+    )
+
+
+    st.subheader(
+        "Publication Number"
+    )
+
+    st.write(
+        patent["Application Number"]
+    )
+
+
+    left,right = st.columns(2)
+
+
+    with left:
+
+        st.subheader(
+            "Abstract"
+        )
+
+        st.write(
+            patent["Abstract"]
+        )
+
+
+    with right:
+
+        st.subheader(
+            "Bibliographic Data"
+        )
+
+        st.write(
+            "Inventor:"
+        )
+
+        st.write(
+            "Original Assignee:"
+        )
+
+        st.write(
+            "Current Assignee:"
+        )
+
+        st.write(
+            "Priority Date:"
+        )
+
+        st.write(
+            "Number of Families:"
+        )
+
+        st.write(
+            "Legal Status:"
+        )
+
+
+    st.subheader(
+        "Description"
+    )
+
+    st.write(
+        patent.get(
+            "Description",
+            "Not available"
+        )
+    )
+
+
+    st.subheader(
+        "Claims"
+    )
+
+    st.write(
+        patent.get(
+            "Claims",
+            "Not available"
+        )
+    )
+
+
+    if st.button(
+        "← Back to Patent List"
+    ):
+
+        st.session_state["page"] = "workspace"
 
         st.rerun()
